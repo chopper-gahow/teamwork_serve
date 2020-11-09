@@ -140,15 +140,55 @@ router.get('/person/finduserbyid',(req,res)=>{
     })
   }
 })
-//注册接口
+//用户注册接口
 router.get('/register/userRegister',(req,res)=>{
 	var body=req.query
 	var user = new User({
 	username: body.username,
   password: body.password,
   realname: body.realname,
-  role:body.role,
-  jurisdiction:body.jurisdiction,
+  role:'学生',
+  jurisdiction:[],
+  headimg:'http://hchopper.top/123.jpg',
+		});
+			User.findOne({
+					username:body.username,
+					password:body.password,
+				},(err,r)=>{
+					if (err) {
+						res.send("err!")
+					}
+					if(!r){
+							user.save(function(err, ret) {
+							if (err) {
+								console.log('保存失败',err);
+								res.send("注册失败")
+							} else {
+								console.log('保存成功');
+								console.log(ret);
+								res.json({
+								"code":200,
+								"msg":"注册成功"	
+							})
+							}
+						}); 
+					}else{
+						 res.json({
+               "msg":"这个用户名已经被注册过啦！",
+               "code":201
+						 })
+					}
+				})
+})
+//管理员注册
+router.get('/register/adminRegister',(req,res)=>{
+	var body=req.query
+	var user = new User({
+	username: body.username,
+  password: body.password,
+  realname: body.realname,
+  role:'管理员',
+  jurisdiction:[],
   headimg:'http://hchopper.top/123.jpg',
 		});
 			User.findOne({
