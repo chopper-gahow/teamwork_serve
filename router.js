@@ -221,15 +221,15 @@ router.get('/register/adminRegister',(req,res)=>{
 				})
 })
 //添加权限
-router.get('/jurisdiction/addjurisdiction',(req,res)=>{
+router.post('/jur/addjur',(req,res)=>{
     var j = new Jur({
-    name: req.query.name,
-    level: req.query.level,
-    describe: req.query.describe,
-    usable: req.query.usable,
+    name: req.body.name,
+    describe: req.body.jurdesc,
+    level: 1,
+    usable: "不可用",
     });
     Jur.findOne({
-            name:req.query.name,
+            name:req.body.name,
           },(err,r)=>{
             if (err) {
               res.send("err!")
@@ -237,19 +237,19 @@ router.get('/jurisdiction/addjurisdiction',(req,res)=>{
             if(!r){
               j.save(function(err, ret) {
                 if (err) {
-                  res.send("注册失败")
+                  res.send("权限新建失败")
                 } else {
-                  console.log(ret);
                   res.json({
                   "code":200,
                   "msg":"权限新建成功"	
                 })
                 }
               }); 
-            }else{
+            }else{console.log(r);
                res.json({
-                 "msg":"这个权限已经存在！",
-                 "code":201
+                 "msg":"这个角色已经存在！",
+                 "code":201,
+                 "data":r
                })
             }
           })
@@ -1000,7 +1000,23 @@ router.get('/study/getdatil', (req, res) => {
     }
   })
 })
-
+//删除用户信息学
+router.get('/user/delete',(req,res)=>{
+  var body = req.query
+  User.deleteOne({_id:body.id},(err,ret)=>{
+    if(err){
+      res.json({
+        "msg":"删除失败"
+      })
+    }
+    else{
+      res.json({
+        "code":200,
+        "msg":"删除成功"
+      })
+    }
+})
+})
 
 
 
