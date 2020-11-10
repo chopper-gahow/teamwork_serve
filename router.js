@@ -146,7 +146,7 @@ router.get('/register/userRegister',(req,res)=>{
 	var user = new User({
 	username: body.username,
   password: body.password,
-  realname: body.realname,
+  realname: body.rename,
   role:'学生',
   jurisdiction:[],
   headimg:'http://hchopper.top/123.jpg',
@@ -303,6 +303,15 @@ router.get('/jurisdiction/findjurisdiction',(req,res)=>{
         "msg":"select jur success"
       })
     }
+  })
+})
+//根据id删除权限
+router.get('/jur/deletebyid',(req,res)=>{
+  Jur.deleteOne({_id:req.query.id},(err,ret)=>{
+    res.json({
+      "code":200,
+      "msg":"删除成功"
+    })
   })
 })
 //查询角色
@@ -540,6 +549,14 @@ router.get('/notice/findall',(req,res)=>[
     }
   })
 ])
+//根据id查询公告
+router.get('/notice/findbyid',(req,res)=>{
+  Notice.findOne({_id:req.query.id},(err,ret)=>{
+    res.json({
+      "data":ret
+    })
+  })
+})
 //推送公告
 router.get('/notice/push',(req,res)=>{
   var body = req.query
@@ -576,6 +593,25 @@ router.get('/notice/delete',(req,res)=>{
       })
     }
 })
+})
+//修改公告
+router.post('/notice/update',(req,res)=>{
+  Notice.updateOne({_id:req.body.id},{
+    title:req.body.title,
+    text:req.body.text,
+  },(err,ret)=>{
+    if(err){
+      res.json({
+        "msg":"修改失败"
+      })
+    }
+    else{
+      res.json({
+        "code":200,
+        "msg":"修改成功"
+      })
+    }
+  })
 })
 //查找推送的公告
 router.get('/notice/findpushed',(req,res)=>{
@@ -660,7 +696,7 @@ router.get('/feedback/findall', (req,res)=>{
     })
   })
 })
-//根据id查询
+//根据id查询反馈
 router.get('/feedback/findid', (req,res)=>{
   FeedBack.findOne({_id:req.query.id},(err,ret)=>{
     res.json({
@@ -1000,7 +1036,7 @@ router.get('/study/getdatil', (req, res) => {
     }
   })
 })
-//删除用户信息学
+//删除用户信息
 router.get('/user/delete',(req,res)=>{
   var body = req.query
   User.deleteOne({_id:body.id},(err,ret)=>{
