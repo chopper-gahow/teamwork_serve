@@ -7,6 +7,7 @@ var ClassSchema = new Schema({
     desc:{type:String},
     classtime:{type:String},
     date:{type:String},
-    coverimg:{type:String}
+    coverimg:{type:String},
+    classarr:[]
 })
 module.exports = mongoose.model('Class',ClassSchema) 

@@ -1,4 +1,5 @@
-var mongoose=require('mongoose')
+var mongoose=require('mongoose');
+const { count } = require('./notice');
 mongoose.connect('mongodb://localhost:27017/teamwork')
 var Schema = mongoose.Schema;
 var UserSchema = new Schema({
@@ -8,6 +9,7 @@ var UserSchema = new Schema({
     role:{type:String},
     jurisdiction:[],
     headimg:{type:String},
-    myclass:[]
+    myclass:[],
+    class:{type:Number},
 })
 module.exports = mongoose.model('User',UserSchema) 

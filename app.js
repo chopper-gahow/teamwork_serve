@@ -14,19 +14,17 @@ app.use(bodyParser.urlencoded({extended:false}))
 // 公开指定目录
 // 只要通过这样做了，就可以通过/public/xx的方式来访问public目录中的所有资源
 
-app.use((req,res,next)=>{
-   res.header("Access-Control-Allow-Credentials", "true"); 
-// res.header('Access-Control-Allow-Origin', '*');
-　　res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
-// 　　res.header('Access-Control-Allow-Origin', 'http://47.102.107.15:3000');
-　　res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
-　　res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
-　　if (req.method == 'OPTIONS') {
-　　　　res.sendStatus(200) /*让options请求快速返回*/
-　　} else {
-　　　　next();
-　　}
-})
+app.all('*', function(req, res, next) {
+  if( req.headers.origin == 'http://localhost:8080' || req.headers.origin == 'http://localhost:8081' ){
+      res.header("Access-Control-Allow-Origin", req.headers.origin);
+      res.header('Access-Control-Allow-Methods', 'POST, GET');
+      res.header("Access-Control-Allow-Credentials", "true"); 
+      res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+      //res.header('Access-Control-Allow-Headers', 'Content-Type',token);
+      res.header('Access-Control-Allow-Headers', 'request-origin,Content-Type,token, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
+  }
+  next();
+});
 //模板引擎在Express中开放模板也是一个API的事
 
 app.use(session({

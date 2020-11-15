@@ -9,6 +9,8 @@ const Role = require('./models/role');
 const Study = require('./models/study');
 const FeedBack = require('./models/feedback')
 const Class = require('./models/class')
+const Choose = require('./models/chooselist')
+const ClassMate = require('./models/classmate')
 const { writer } = require('repl');
 const { ifError } = require('assert');
 const { insertMany } = require('./models/user');
@@ -51,7 +53,8 @@ router.get('/login/userlogin',(req,res)=>{
           realname:user.realname,
           headimg:user.headimg,
           role:user.role,
-          jurisdiction:user.jur
+          jurisdiction:user.jur,
+          class:user.class
         }
       })
     }
@@ -801,18 +804,61 @@ router.get("/class/findbyid",(req,res)=>{
   })
 })
 //选课
-router.get("/user/addclass",(req,res)=>{
+router.get("/user/chooseclass",(req,res)=>{
   var body = req.query
-  var myclass
-  User.findOne({_id:req.session.user._id},(err,ret)=>{
-    myclass = ret.myclass
-    myclass.push(body.classid)
-    User.updateOne({_id:req.session.user._id},{myclass:myclass},(err,rut)=>{
-      res.json({
-        "msg":"success"
-      })
+  Choose.find({classid: body.classid},(err,ret)=>{
+   let ischoose = ret.filter(item=>{
+     return item.username === body.username
+   })
+   if (ischoose.length === 0) {
+    var choose = new Choose({
+      username:body.username,
+      classid:body.classid
     })
-    
+    choose.save((err,rut)=>{
+      if (err) {
+        res.json({
+          "data":"提交失败"
+        })
+      }
+      else{
+        res.json({
+          "code":200,
+          "msg":"提交成功,等待后台审核"
+        })
+      }
+    })
+   } else {
+    res.json({
+      "code":201,
+      "msg":"提交失败,已经选过了"
+    })
+   }
+  })
+})
+//查看选课
+router.get("/user/findaddclass",(req,res)=>{
+  Choose.find((err,ret)=>{
+    res.json({
+      "code":200,
+      "data":ret
+    })
+  })
+  
+})
+//通过选课
+router.get("/user/tongg",(req,res)=>{
+  Choose.findOne({_id: req.query.id}, (err,ret)=>{
+    var myclass
+    User.findOne({username:ret.username},(err,rut)=>{
+        myclass = rut.myclass
+        myclass.push(ret.classid)
+        User.updateOne({username:ret.username},{myclass:myclass},(err,rut)=>{
+          res.json({
+            "msg":"success"
+          })
+        })
+    })
   })
   
 })
@@ -867,6 +913,7 @@ router.post('/class/addnew',(req,res)=>{
           coverimg:req.body.coverimg,
           desc:req.body.desc,
           classtime:req.body.classtime,
+          classarr:req.body.classarr
         })
         classes.save((err,rut)=>{
           if (err) {
@@ -1053,6 +1100,61 @@ router.get('/user/delete',(req,res)=>{
     }
 })
 })
+//添加班级
+router.get('/class/add',(req,res) => {
+  var body = req.query
+  ClassMate.find({classcount: body.classount},(err,ret)=>{
+   let ischoose = ret.filter(item=>{
+     return item.classcount === body.classcount
+   })
+   if (ischoose.length === 0) {
+    var classmate = new ClassMate({
+      classcount:req.query.classcount
+    })
+    classmate.save((err,rut)=>{
+      if (err) {
+        res.json({
+          "data":"提交失败"
+        })
+      }
+      else{
+        res.json({
+          "code":200,
+          "msg":"添加成功"
+        })
+      }
+    })
+   } else {
+    res.json({
+      "code":201,
+      "msg":"提交失败,已经有这个课程"
+    })
+   }
+  })
+})
+//查看所有班级
+router.get('/classmate/findall',(req,res) => {
+  ClassMate.find((err,ret) => {
+    res.json({
+      "data":ret
+    })
+  })
+})
+//根据班级查找课程
+router.get('/class/findbyclass',(req,res) => {
+  Class.find((err,ret) => {
+    let hisclass = ret.filter(item => {
+      return item.classarr.includes(req.query.class)
+    })
+    res.json({
+      "data":hisclass
+    })
+  })
+})
+
+
+
+
 
 
 
